@@ -1,5 +1,7 @@
 package com.cau.swtestcode.controller;
 
+import com.cau.swtestcode.domain.Member;
+import com.cau.swtestcode.domain.Project;
 import com.cau.swtestcode.domain.Users;
 import com.cau.swtestcode.domain.enumClass.UserType;
 import com.cau.swtestcode.dto.project.CreateProjectReq;
@@ -87,14 +89,19 @@ class ProjectControllerTest {
         ManageUserAccountReq testerReq = new ManageUserAccountReq();
         testerReq.setUserEmail("tester@example.com");
         testerReq.setUserType(UserType.Tester);
+        testerReq.setProjectName("New Project");
 
         ManageUserAccountReq developerReq = new ManageUserAccountReq();
         developerReq.setUserEmail("developer@example.com");
         developerReq.setUserType(UserType.Developer);
+        developerReq.setProjectName("New Project");
+
 
         ManageUserAccountReq projectLeaderReq = new ManageUserAccountReq();
         projectLeaderReq.setUserEmail("projectLeader@example.com");
         projectLeaderReq.setUserType(UserType.ProjectLeader);
+        projectLeaderReq.setProjectName("New Project");
+
 
         CreateProjectReq createProjectReq = new CreateProjectReq();
         createProjectReq.setName("New Project");
@@ -113,6 +120,56 @@ class ProjectControllerTest {
                 .andExpect(MockMvcResultMatchers.content().string("프로젝트가 생성되었습니다."))
                 .andDo(MockMvcResultHandlers.print());
 
+    }
+
+    @Test
+    @DisplayName("프로젝트 리스트 조회 컨트롤러 테스트 - 성공 케이스")
+    void readProjectListSuccessTest() throws Exception {
+        // Given: 사용자 추가
+        Users user = new Users();
+        user.setUsername("user");
+        user.setPassword("password123");
+        user.setEmail("user@example.com");
+        user.setAdmin(false);
+        user = usersRepository.save(user); // 저장 후 반환된 객체 사용
+
+        // Given: 프로젝트 추가
+        Project project1 = new Project();
+        project1.setName("Project 1");
+        project1.setStartDate(new Date());
+        project1.setEndDate(new Date());
+        project1.setDescription("Description 1");
+        projectRepository.save(project1);
+        Member member1 = new Member(user, project1, UserType.Developer);
+        memberRepository.save(member1);
+
+        Project project2 = new Project();
+        project2.setName("Project 2");
+        project2.setStartDate(new Date());
+        project2.setEndDate(new Date());
+        project2.setDescription("Description 2");
+        projectRepository.save(project2);
+        Member member2 = new Member(user, project2, UserType.Tester);
+        memberRepository.save(member2);
+
+        // When & Then: 프로젝트 리스트 조회
+        mockMvc.perform(MockMvcRequestBuilders.get("/read/project-list/{userId}", user.getUserId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("Project 1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value("Project 2"))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("프로젝트 리스트 조회 컨트롤러 테스트 - 실패 케이스 (존재하지 않는 사용자)")
+    void readProjectListFailTest() throws Exception {
+        // When & Then: 존재하지 않는 사용자의 프로젝트 리스트 조회 시 예외 발생
+        mockMvc.perform(MockMvcRequestBuilders.get("/read/project-list/{userId}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
     }
 
 }

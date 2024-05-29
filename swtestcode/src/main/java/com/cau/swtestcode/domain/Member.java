@@ -13,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Member {
     //4 attributes
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
@@ -28,4 +29,10 @@ public class Member {
     // user have different type per project
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+    public Member(Users user, Project project, UserType userType) {
+        this.user = user;
+        this.project = project;
+        this.userType = userType;
+    }
 }
