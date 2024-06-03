@@ -1,6 +1,5 @@
 package com.cau.swtestcode.dto.ticket.response;
 
-
 import com.cau.swtestcode.domain.enumClass.Priority;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,14 +12,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AssignedTicketListRes {
+public class ReopenedTicketListRes {
     //@Schema(description = "티켓 ID")
     private Long ticketId;
-
     //@Schema(description = "티켓 이름")
     private String title;
 
-    //@Schema(description = "티켓 우선 순위")
+    //@Schema(description = "티켓 우선 순위 " )
     private Priority priority;
 
     //@Schema(description = "티켓 생성 시간")
@@ -29,7 +27,7 @@ public class AssignedTicketListRes {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AssignedTicketList {
-        private List<AssignedTicketListRes> assignedTickets;
+    public static class ReopenedTicketList {
+        private List<ReopenedTicketListRes> reopenedTickets;
     }
 }
